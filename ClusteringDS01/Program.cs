@@ -7,6 +7,8 @@ namespace ClusteringDS01
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
+            Reader.CsvReader.GetData();
+            Console.ReadLine();
         }
     }
 }
