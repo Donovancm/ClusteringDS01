@@ -7,10 +7,10 @@ namespace ClusteringDS01.Reader
 {
     public class CsvReader
     {
-        public static Dictionary<string, int[]> GetData()
+        public static Dictionary<string, double[]> GetData()
         {
             //<-----
-            var dictionary = new Dictionary<string, int[]>();
+            var dictionary = new Dictionary<string, double[]>();
 
             List<string> list = new List<string>();
             using (StreamReader reader = new StreamReader("C:/Users/Donovan/source/repos/ClusteringDS01/ClusteringDS01/Data/Winecraft.csv"))
@@ -35,7 +35,7 @@ namespace ClusteringDS01.Reader
                     {
                         string[] user = item.Split(",");
                         userArray[i-1] = user[i];
-                        dictionary.Add(user[i], new int[32]);
+                        dictionary.Add(user[i], new double[32]);
 
                     }
                 }
@@ -48,7 +48,7 @@ namespace ClusteringDS01.Reader
                     {
                         string[] userOffers = item.Split(",");
                         if(userOffers[i+1] == "") {
-                            int[] offers = dictionary[userArray[i]];
+                            double[] offers = dictionary[userArray[i]];
                             offers[index - 2] = 0;
                             dictionary[userArray[i]] = offers;
 
@@ -56,7 +56,7 @@ namespace ClusteringDS01.Reader
                         }
                         else {
                             users[i] = int.Parse(userOffers[i+1]);
-                            int[] offers = dictionary[userArray[i]];
+                            double[] offers = dictionary[userArray[i]];
                             offers[index - 2] = int.Parse(userOffers[i + 1]);
                         }
                     }
