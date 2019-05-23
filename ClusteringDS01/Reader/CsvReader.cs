@@ -9,6 +9,7 @@ namespace ClusteringDS01.Reader
     {
         public static Dictionary<string, int[]> GetData()
         {
+            //<-----
             var dictionary = new Dictionary<string, int[]>();
 
             List<string> list = new List<string>();
@@ -30,10 +31,11 @@ namespace ClusteringDS01.Reader
                 if (index == 1)
                 {
                     userArray = new string[101];
-                    for (int i = 0; i <= userArray.Length -1 ; i++)
+                    for (int i = 1; i <= userArray.Length -1 ; i++)
                     {
                         string[] user = item.Split(",");
-                        userArray[i] = user[i];
+                        userArray[i-1] = user[i];
+                        dictionary.Add(user[i], new int[32]);
 
                     }
                 }
@@ -41,16 +43,28 @@ namespace ClusteringDS01.Reader
                 {
                     // dictionary key user 1
                     
-                    int[] offers = new int[32];
-                    for (int i = 1; i < offers.Length; i++)
+                    int[] users = new int[100];
+                    for (int i = 0; i < users.Length; i++)
                     {
                         string[] userOffers = item.Split(",");
-                        if(userOffers[i] == "") { offers[i] = 0; }
-                        else { offers[i] = int.Parse(userOffers[i]); }
+                        if(userOffers[i+1] == "") {
+                            int[] offers = dictionary[userArray[i]];
+                            offers[index - 2] = 0;
+                            dictionary[userArray[i]] = offers;
+
+
+                        }
+                        else {
+                            users[i] = int.Parse(userOffers[i+1]);
+                            int[] offers = dictionary[userArray[i]];
+                            offers[index - 2] = int.Parse(userOffers[i + 1]);
+                        }
                     }
-                    dictionary.Add(userArray[index], offers);
+                   
                     // dictionary user set value offers
                     // Adam, [1,3]
+                    //persoon, offerte, wel of niet gekocht
+
                
                 }
             }
