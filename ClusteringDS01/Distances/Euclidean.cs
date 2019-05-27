@@ -6,6 +6,8 @@ namespace ClusteringDS01.Distances
 {
     public class Euclidean : IDistance
     {
+        //offer naar centroid berekenen
+        //X offer Y = 1ste centroid
         public double ComputeDistance(double[] X, double[] Y)
         {
             double distance = 0.0;
