@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClusteringDS01.Distances;
+using System;
 
 namespace ClusteringDS01
 {
@@ -13,7 +14,9 @@ namespace ClusteringDS01
             //var Adams = dictionary["Adams"];
             //var Allen = dictionary["Allen"];
             PickTargetUsers();
-            var result =  Distances.Euclidean.ComputeDistance(dictionary[targetUser], dictionary[secTargetUser]);
+            IDistance iDistance = null;
+            iDistance = new Euclidean();
+            var result =  iDistance.ComputeDistance(dictionary[targetUser], dictionary[secTargetUser]);
             Console.WriteLine(result);
             Console.ReadLine();
         }
@@ -21,9 +24,6 @@ namespace ClusteringDS01
         {
             //Reminder weergeven lijst van beschikbare personen
             //Kies eerste persoon en daarna kies 2de persoon
-
-
-
             Console.WriteLine("Selecteer eerste persoon");
             targetUser = Console.ReadLine()+"";
             Console.WriteLine("Selecteer tweede persoon");

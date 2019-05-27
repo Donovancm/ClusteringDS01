@@ -9,9 +9,48 @@ namespace ClusteringDS01.Reader
     {
         public static Dictionary<string, double[]> GetData()
         {
-            //<-----
+            // init variables
+            double[,] offers = CreateMatrix();
+            List<double[,]> kMatrixList = new List<double[,]>();
+
+
+            // Code to setupt offers matrix
             var dictionary = new Dictionary<string, double[]>();
 
+            // setup Offers Matrix
+            setupOffersMatrix(offers);
+
+            // set initial K -> K = 4 as centroids
+            InitializeK(4);
+            Console.ReadLine();
+            //place K Randomly at first time.
+            // then after first time place in center of centroids own cluster/points
+
+
+            // step1: create matrixs for centroids k amount
+            // step 2: eucl distance from centroid to offers/items
+            // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} list/dictionary.
+            // step 4: calculate sse store to calc smallest sse value of new and old 
+            // step 5: repeat 200-500 times and move centroids each time.
+            return dictionary;
+        }
+        public static double[,] CreateMatrix()
+        {
+            //Skip last row and last column //
+            return new double[32, 101];
+        }
+        public static List<double[,]> InitializeK(int k)
+        {
+            List<double[,]> kMatrixList = new List<double[,]>();
+            for (int i = 0; i < k; i++)
+            {
+                kMatrixList.Add(CreateMatrix());
+            }
+            return kMatrixList;
+        }
+
+        public static void setupOffersMatrix(double[,] matrix)
+        {
             List<string> list = new List<string>();
             using (StreamReader reader = new StreamReader("C:/Users/Donovan/source/repos/ClusteringDS01/ClusteringDS01/Data/Winecraft.csv"))
             {
@@ -22,53 +61,36 @@ namespace ClusteringDS01.Reader
                     Console.WriteLine(line); // Write to console.
                 }
             }
-            int index = 0;
-            string[] userArray = { };
+
+            int row = 0;
+            //string[] userArray = { };
             foreach (var item in list)
             {
-                index++;
-
-                if (index == 1)
+                // After the the first row comes offers data
+                if (row > 0)
                 {
-                    userArray = new string[101];
-                    for (int i = 1; i <= userArray.Length -1 ; i++)
-                    {
-                        string[] user = item.Split(",");
-                        userArray[i-1] = user[i];
-                        dictionary.Add(user[i], new double[32]);
 
-                    }
-                }
-                else
-                {
-                    // dictionary key user 1
-                    
+                    // set matrix of offers of clients and products
                     int[] users = new int[100];
+
                     for (int i = 0; i < users.Length; i++)
                     {
                         string[] userOffers = item.Split(",");
-                        if(userOffers[i+1] == "") {
-                            double[] offers = dictionary[userArray[i]];
-                            offers[index - 2] = 0;
-                            dictionary[userArray[i]] = offers;
-
-
+                        if (userOffers[i + 1] == "")
+                        {
+                            // if  useroffer is empty string then set 0 in matrix
+                            matrix[row-1,i]= 0.0;
                         }
-                        else {
-                            users[i] = int.Parse(userOffers[i+1]);
-                            double[] offers = dictionary[userArray[i]];
-                            offers[index - 2] = int.Parse(userOffers[i + 1]);
+                        else
+                        {
+                            //else useroffer is not empty then set 1 in matrix
+                            matrix[row - 1, i] = 1.0;
                         }
                     }
-                   
-                    // dictionary user set value offers
-                    // Adam, [1,3]
-                    //persoon, offerte, wel of niet gekocht
-
-               
                 }
+                // set row index to the next line/ the follow up productid of users offers
+                row++;
             }
-            return dictionary;
         }
     }
 }

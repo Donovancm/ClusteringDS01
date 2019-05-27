@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ClusteringDS01.Distances
 {
-    public class Euclidean
+    public class Euclidean : IDistance
     {
-        public static double ComputeDistance(double[] X, double[] Y)
+        public double ComputeDistance(double[] X, double[] Y)
         {
             double distance = 0.0;
             //d(p,q) = d(q,p) = 
