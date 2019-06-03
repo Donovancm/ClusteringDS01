@@ -98,6 +98,8 @@ namespace ClusteringDS01
             //eucl distance from centroid to offers / items
             CalcCentroidDistance(centroidPositionList, offers, centroidDistances);
 
+            // step: 3 after calc distances add data to cluster dictionary {klnr prodnr centroidnr} 
+
             Console.ReadLine();
 
             /* START HERE NEXT TIME!
@@ -106,15 +108,15 @@ namespace ClusteringDS01
              */
 
 
-            
+
 
 
             // step: 3 after calc distances add data to cluster dictionary {klnr prodnr centroidnr} 
 
 
             // step1: create matrixs for centroids k amount : done
-            // step 2: eucl distance from centroid to offers/items : todo <--
-            // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} list/dictionary.
+            // step 2: eucl distance from centroid to offers/items : done
+            // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} list/dictionary.todo <--
             // step 4: calculate sse store to calc smallest sse value of new and old 
             // step 5: repeat 200-500 times and move centroids each time.
         }
@@ -152,6 +154,25 @@ namespace ClusteringDS01
             }
             // 0 to 99
             centroidDistance.Add(cnumber, distances);
+        }
+
+        public static void AssignToCluster()
+        {
+            //dictionary of clusters
+
+            // cluster = key klnr , productnr-> = {[0,0] , centroidnr --> = [0,1]} /// int[,] -> = {row = 32}, (columns = 2) [1] -> prdnr, [2] -> centroidnr
+            // loop door dictionary of centroid -> add distances to array of kln_nr -> check shortes -> add to cluster 
+            // 
+        }
+
+        public static Boolean ShortestDistance( double[] array, double distance)
+        {
+            Array.Sort(array);
+            if (array[0] == distance)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
