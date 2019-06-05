@@ -33,7 +33,7 @@ namespace ClusteringDS01.Reader
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    list.Add(line); // Add to list.
+                    list.Add(line); // Add to clusterPoints.
                     Console.WriteLine(line); // Write to console.
                 }
             }
