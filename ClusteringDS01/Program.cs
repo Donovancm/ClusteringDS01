@@ -98,7 +98,7 @@ namespace ClusteringDS01
             CalcCentroidDistance(centroidPositionList, offers, centroidDistances);
 
             // step: 3 after calc distances add data to cluster dictionary {klnr prodnr centroidnr} 
-
+            AssignToCluster(centroidDistances, clusterPoints);
             Console.ReadLine();
 
             /* START HERE NEXT TIME!
@@ -111,9 +111,9 @@ namespace ClusteringDS01
 
             // step1: create matrixs for centroids k amount : done
             // step 2: eucl distance from centroid to offers/items : done
-            // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} clusterPoints/dictionary.todo <--
-            // step 3.5 Complete mergepoints / blabla methode  todo <---
-            // step 4: calculate sse store to calc smallest sse value of new and old 
+            // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} clusterPoints/dictionary.done
+            // step 3.5 Complete mergepoints / blabla methode  done
+            // step 4: calculate sse store to calc smallest sse value of new and old todo <---
             // step 5: repeat 200-500 times and move centroids each time.
         }
         public static void CalcCentroidDistance(List<CentroidPosition> cList, double[,] offers, Dictionary<int, double[,]> centroidDistance)
@@ -152,66 +152,120 @@ namespace ClusteringDS01
             centroidDistance.Add(cnumber, distances);
         }
 
-        public static void AssignToCluster(Dictionary<int,double[,]> centroidDistance, Dictionary<int,int[,]> clusterPoints)
+        public static void AssignToCluster(Dictionary<int, double[,]> centroidDistance, Dictionary<int, int[,]> clusterPoints)
         {
             //dictionary of clusters
             for (int i = 0; i < 101; i++) // loops through kln_nr amount
             {
                 // gets i {kln_nr} of centroiddistance dictionary -> then pick the smallest value
                 double[,] distance = new double[4, 3]; // K{aantal centroids} = 4
-                int index = 0 ;
+                int index = 0;
                 foreach (var centroid in centroidDistance)
                 {
                     distance[index, 0] = centroid.Key;
-                    distance[index, 1] = centroid.Value[index,0]; // klant nummer
-                    distance[index, 2] = centroid.Value[index, 1]; // distance
+                    distance[index, 1] = centroid.Value[i, 0]; // klant nummer
+                    distance[index, 2] = centroid.Value[i, 1]; // distance
+                    index++;
                 }
                 // method die de 2d array object opslaat in de behoorde cluster 2darray
-                blabla(ShortestDistance(distance));
+                AssignToClusterExtension(ShortestDistance(distance));
                 //ShortestDistance( distance)[0] return centroidnummer en klnt -> then add to dictionary
             }
-            // cluster = key klnr , productnr-> = {[0,0] , centroidnr --> = [0,1]} /// int[,] -> = {row = 32}, (columns = 2) [1] -> prdnr, [2] -> centroidnr
-            // loop door dictionary of centroid -> add distances to array of kln_nr -> check shortes -> add to cluster 
-            // 
         }
 
-        public static void blabla(double[,] distance)// hulp methode voor complex add points to cluster
+        public static void AssignToClusterExtension(double[,] distance)// hulp methode voor complex add points to cluster
         {
-            // check if cluster dictionary if centroid is not empty -> if not then create a new 2darray with double the row
-
-            var centroidnumber = distance[0, 0];
-            var klnt_nr = distance[0, 1];
-
-            var key = int.Parse(klnt_nr + "");
+            var centroidnumber = int.Parse(distance[0, 0] + "");
+            var key = int.Parse(distance[0, 1] + "");
             int[,] value = GetOfferValues(offers, key);
             int row = value.GetLength(0);
             int column = value.GetLength(1);
             int[,] clusterArray = new int[row, column];
-            if (true) // check if value of dictionany key is empty
+
+            if (clusterPoints.ContainsKey(key)) // check if value of dictionany key is empty
             {
-                row = value.GetLength(0) + clusterPoints[key].GetLength(0);// if dictionary is empty
-                column = value.GetLength(1) + clusterPoints[key].GetLength(1);// if dictionary is empty
-                clusterArray = new int[row, column];
-                // method om alle oude en nieuw points in de new clusterArray te zetten
-                //MergePoints()
+                value = AssignProductToCentroid(centroidnumber, value);
+                MergePoints(key, value);
             }
             else
             {
-                // zet value to dictionary key p
-                // Centroids toepassen
+                value = AssignProductToCentroid(centroidnumber, value);
+                clusterPoints.Add(key, value);
             }
+        }
+
+        public static int[,] AssignProductToCentroid(int centroid, int[,] value)
+        {
+            //new 2d array with 2 colums and 32 rows: column[1] = prd_nr , column[2] = centroid
+            int row = value.GetLength(0);
+            int column = value.GetLength(1);
+            int[,] productCentroidArray = new int[row, 2];
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < column; j++)
+                {
+                    if (value[i, j] == 1) //  It shows if product has been bought
+                    {
+                        productCentroidArray[i, 0] = i; //product number
+                        productCentroidArray[i, 1] = centroid; //centroid number
+                    }
+                    else //Not bought by any of the clients
+                    {
+                        productCentroidArray[i, 0] = i; //product number
+                        productCentroidArray[i, 1] = 0; //centroid number
+                    }
+                }
+            }
+            return productCentroidArray;
         }
 
         public static int[,] GetOfferValues(double[,] offers, int klnt_nr)
         {
             //zoek alle points in offers van klant nummer en return die points als 2darray
-            return new int[1, 1];
+            int[,] klnrArray = new int[32, 1];
+            for (int i = 0; i < offers.GetLength(0); i++)
+            {
+                for (int j = 0; j < offers.GetLength(1); j++)
+                {
+                    if (j == klnt_nr)
+                    {
+                        klnrArray[i,0] = int.Parse(offers[i,j]+"");
+                    }
+                }
+            }
+            return klnrArray;
         }
 
-        public static void MergePoints(int[,] clusterArray, int[,] offersPoints)
+        public static void MergePoints(int key, int[,] value)
         {
-            // alle oude en nieuw points in de new clusterArray te zetten
-            // Centroids toepassen
+            int newRow = value.GetLength(0) + clusterPoints[key].GetLength(0);
+            int[,] clusterArray = new int[newRow, 2];
+            int[,] oldArray = clusterPoints[key];
+            int lastIndexOfOldArray = oldArray.GetLength(0) - 1;
+            int row = clusterArray.GetLength(0);
+            int column = clusterArray.GetLength(1);
+            bool oldArrayDone = false;
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < column; j++)
+                {
+                    if (i <= lastIndexOfOldArray && !oldArrayDone)              
+                    {
+                        clusterArray[i, j] = oldArray[i, j];
+                    }
+                    else
+                    {
+                        if (i == lastIndexOfOldArray && !oldArrayDone)
+                        {
+                            oldArrayDone = true;
+                        }
+                        int index = i - (lastIndexOfOldArray + 1);
+                        clusterArray[i, j] = value[index, j];
+                    }
+
+                }
+            }
+            clusterPoints[key] = clusterArray;
         }
 
         public static double[,] ShortestDistance(double[,] datas)
@@ -220,14 +274,14 @@ namespace ClusteringDS01
             var number = data.GetLength(0);
             var array = new double[number];
             var newArray = new double[number, 3];
-            for (int i = 0; i <= data.GetLength(0) - 1; i++)
+            for (int i = 0; i < data.GetLength(0); i++)
             {
                 array[i] = data[i, 2];
             }
             Array.Sort(array);
-            for (int a = 0; a <= data.GetLength(0) - 1; a++)
+            for (int a = 0; a < data.GetLength(0) ; a++)
             {
-                for (int b = 0; b <= data.GetLength(0) - 1; b++)
+                for (int b = 0; b < data.GetLength(0); b++)
                 {
                     if (array[a] == data[b, 2])
                     {
@@ -239,11 +293,5 @@ namespace ClusteringDS01
             }
             return newArray;
         }
-        //Array.Sort(array);
-        //if (array[0] == distance)
-        //{
-        //    return true;
-        //}
-        //return false;
     }
 }
