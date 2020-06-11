@@ -176,24 +176,21 @@ namespace ClusteringDS01
             double avgTimes = 0.0;
             double avgSSE = 0.0;
             Dictionary<int, double> centroidsAvgSSE = new Dictionary<int, double>();
-            foreach (var centroid in clusterProducts) // 1
+
+            for (int c = 1; c <= 4; c++)
             {
-               
-                foreach (var centroidD in centroidDistance) //1
+                avgSSE = 0.0;
+                int row = centroidDistance[c].GetLength(0) - 1;
+                avgTimes = 0.0;
+                for (int i = 0; i < row; i++)// 1 -> klanten
                 {
-                    avgSSE = 0.0;
-                    int row = centroidD.Value.GetLength(0) - 1;
-                    avgTimes = 0.0;
-                    for (int i = 0; i < row; i++)// 1 -> klanten
+                    if (clusterProducts[c].Contains(centroidDistance[c][i, 0])) // per klnr
                     {
-                        if (centroid.Value.Contains(centroidD.Value[i,0])) // per klnr
-                        {
-                            avgSSE += centroidD.Value[i, 1];
-                            avgTimes++;
-                        }
+                        avgSSE += centroidDistance[c][i, 1];
+                        avgTimes++;
                     }
                 }
-                centroidsAvgSSE.Add(centroid.Key, (avgSSE / avgTimes));
+                centroidsAvgSSE.Add(c, (avgSSE / avgTimes));
             }
             return centroidsAvgSSE;
         }
