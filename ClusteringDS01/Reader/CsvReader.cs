@@ -28,7 +28,7 @@ namespace ClusteringDS01.Reader
         public static void SetupOffersMatrix(double[,] matrix)
         {
             List<string> list = new List<string>();
-            using (StreamReader reader = new StreamReader("C:/Users/Donovan/source/repos/ClusteringDS01/ClusteringDS01/Data/Winecraft.csv"))
+            using (StreamReader reader = new StreamReader("../../../Data/Winecraft.csv"))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
