@@ -3,6 +3,8 @@ using ClusteringDS01.Model;
 using ClusteringDS01.Reader;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace ClusteringDS01
 {
@@ -49,8 +51,8 @@ namespace ClusteringDS01
             for (int i = 0; i < k; i++)
             {
                 Random rng = new Random();
-                double Y = rng.NextDouble()*100;
-                double X = rng.NextDouble()*31;
+                double Y = rng.NextDouble() * 100; //50: 2 = 25
+                double X = rng.NextDouble() * 31; //15:2 = 
                 kList.Add(new CentroidPosition(i + 1, X, Y));
             }
             return kList;
@@ -83,65 +85,172 @@ namespace ClusteringDS01
         {
             // init variables
             offers = CsvReader.GetData();
-            List<double[,]> kMatrixList = new List<double[,]>();
+            
             // Cluster points
             clusterPoints = new Dictionary<int, int[,]>(); //  key klnr , productnr-> = {[0,0] , centroidnr --> = [0,1]} /// int[,] -> = {row = 32}, (columns = 2) [1] -> prdnr, [2] -> centroidnr
             Dictionary<int, double[,]> centroidDistances = new Dictionary<int, double[,]>(); // key centroidnr , kln_nr-> = {[0,0] , distance --> = [0,1]} /// int[,] -> = {row = 100}, (columns = 2) [1] -> kln_nr, [2] -> distance
-
+            
 
             // set initial K -> K = 4 as centroids with X & Y position
             int k = 4;
             int[,] centroidLocation = new int[k, 2]; // matrix to save current centroids location
-            //kMatrixList = InitializeK(k);
+                                                     //kMatrixList = InitializeK(k);
 
 
-            //place K Randomly at first time.
-
-            var centroidPositionList = PlaceRandomCentroid(k);
-
-            //eucl distance from centroid to offers / items
-            CalcCentroidDistance(centroidPositionList, offers, centroidDistances);
-
-            // step: 3 + 3.5 | after calc distances add data to cluster dictionary {klnr prodnr centroidnr}| 
-            AssignToCluster(centroidDistances, clusterPoints);
-            
-
-            // step: 4 |  calculate average of all SSE of clusterpoints assigned to a certain Centroid.   Average SSE == Centre --> relocate Centroid to Centrepoint
-            var clusterProducts = GetClusterProducts();
-            var centroidsAvgSSE = CalcAverageSSECentroids(clusterProducts, centroidDistances);
+            for (int i = 0; i < 2; i++)
+            {
+                var centroidPositionList = new List<CentroidPosition>();
+                if (i == 0)
+                {
+                    //place K Randomly at first time.
+                    centroidPositionList = PlaceRandomCentroid(k);
+                }
 
 
-            // step: 4.5 | vergelijk oude sse met nieuw Sse
-            UpdateSSE(centroidsAvgSSE);
-            Console.ReadLine();
+                //eucl distance from centroid to offers / items
+                CalcCentroidDistance(centroidPositionList, offers, centroidDistances);
 
-            // stap 5: | relocate centroids
-
-            /* START HERE NEXT TIME!
-             * then after first time place in center of centroids own cluster/points 
-             * checks centroids items positions min and max of rows and columns to place centroid randomly between min and max position
-             */
-
-            // step: 3 after calc distances add data to cluster dictionary {klnr prodnr centroidnr} 
+                // step: 3 + 3.5 | after calc distances add data to cluster dictionary {klnr prodnr centroidnr}| 
+                AssignToCluster(centroidDistances, clusterPoints);
 
 
+                // step: 4 |  calculate average of all SSE of clusterpoints assigned to a certain Centroid.   Average SSE == Centre --> relocate Centroid to Centrepoint
+                var clusterClients = GetClusterClients();
+                var centroidsAvgSSE = CalcAverageSSECentroids(clusterClients, centroidDistances);
 
-            // step1: create matrixs for centroids k amount : done
-            // step 2: eucl distance from centroid to offers/items : done
-            // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} clusterPoints/dictionary.done
-            // step 3.5 Complete mergepoints / blabla methode  done
-            // step 4: calculate sse store to calc smallest sse value of new and old todo <---
-            // step 5: repeat 200-500 times and move centroids each time.
+
+                // step: 4.5 | vergelijk oude sse met nieuw Sse
+                UpdateSSE(centroidsAvgSSE);
+
+                if(i > 0)
+                {
+                    // stap 5: | relocate centroids
+                    centroidPositionList = RelocateCentroidsPositions(k, centroidsAvgSSE, centroidDistances, clusterClients);
+                }
+
+                /* START HERE NEXT TIME!
+                 * then after first time place in center of centroids own cluster/points 
+                 * checks centroids items positions min and max of rows and columns to place centroid randomly between min and max position
+                 */
+
+                // step: 3 after calc distances add data to cluster dictionary {klnr prodnr centroidnr} 
+
+
+
+                // step1: create matrixs for centroids k amount : done
+                // step 2: eucl distance from centroid to offers/items : done
+                // step 3: shortest distance of centroids and offers/item assign to point object {kl.nr,pr.nr, c.nr} clusterPoints/dictionary.done
+                // step 3.5 Complete mergepoints / blabla methode  done
+                // step 4: calculate sse store to calc smallest sse value of new and old todo <---
+                // step 5: repeat 200-500 times and move centroids each time.
+            }
+
+        }
+        public static List<CentroidPosition> RelocateCentroidsPositions(int k, Dictionary<int, double> centroidsAvgSSE, Dictionary<int, double[,]> centroidDistance, Dictionary<int,HashSet<double>> clusterClients)
+        {
+            // stap 1: get klnr list for each centroid
+            // stap 2: get prods of avg klnr -> new centroid location X
+            // stap 3: get avg prod -> new centroid location Y 
+            var customerList = GetCustomers(k, centroidsAvgSSE, centroidDistance, clusterClients);
+            var productList = GetProducts(k, customerList, clusterPoints);
+
+            List<CentroidPosition> kList = new List<CentroidPosition>();
+            for (int c = 1; c <= k; c++)
+            {
+                double Y = double.Parse(productList[c].ToString());
+                double X = double.Parse( customerList[c].ToString());
+                kList.Add(new CentroidPosition(c, X, Y));
+            }
+
+            return kList;
         }
 
-        public static double CompareSSE( double sseNew, double sseOld)
+        public static Dictionary<int, int> GetCentroidsAvgNumber(int k, Dictionary<int, List<double>> List)
+        {
+            Dictionary<int, int> centroidAvgNumbers = new Dictionary<int, int>();
+            for (int c = 1; c <= k; c++)
+            {
+                var array = List[c].ToArray();
+                Array.Sort(array);
+                int lenght = array.Length - 1;
+                int avgLength = lenght / 2;
+                int nr = Int32.Parse(array[avgLength].ToString());
+                centroidAvgNumbers.Add(c, nr);
+            }
+            return centroidAvgNumbers;
+        }
+        public static Dictionary<int, int> GetProducts(int k, Dictionary<int, int> customerList, Dictionary<int, int[,]> clusterPoints)
+        {
+            Dictionary<int, List<double>> centroidProducts = new Dictionary<int, List<double>>(); // key = centroid number, list = products
+            for (int c = 1; c <= k; c++)
+            {
+                var matrix = clusterPoints[customerList[c]];
+                for (int row = 0; row < matrix.GetLength(0)-1; row++)
+                {
+                    //  key klnr , productnr-> = {[0,0] , centroidnr --> = [0,1]} 
+                    if (matrix[row,1] == c)
+                    {
+                        if (!centroidProducts.ContainsKey(c))
+                        {
+                            centroidProducts.Add(c, new List<double>());
+                            centroidProducts[c].Add(matrix[row, 0]);
+                        }
+                        else 
+                        {
+                            centroidProducts[c].Add(matrix[row, 0]);
+                        }
+                            
+                    }
+                   
+                }
+            }
+            return GetCentroidsAvgNumber(k, centroidProducts);
+        }
+
+        public static Dictionary<int,int> GetCustomers(int k, Dictionary<int, double> centroidsAvgSSE, Dictionary<int, double[,]> centroidDistance, Dictionary<int, HashSet<double>> clusterClients)
+        {
+            Dictionary<int, List<double>> centroidCustomers = new Dictionary<int, List<double>>(); // key = centroid number, list = klnr
+            for (int c = 1; c <= k; c++)
+            {
+                var matrix = centroidDistance[c];
+                for (int row = 0; row < matrix.GetLength(0) - 1; row++)
+                {
+                    //kln_nr-> = {[0,0] , distance 
+
+                    var klnr = matrix[row, 0];
+                    var distance = matrix[row, 1];
+                    var margin = 1;
+
+                    var minRange = centroidsAvgSSE[c] - margin;
+                    var maxRange = centroidsAvgSSE[c] + margin;
+
+                    if (clusterClients[c].Contains(klnr) && (distance >= minRange && distance <= maxRange))
+                    {
+                        if (!centroidCustomers.ContainsKey(c))
+                        {
+                            centroidCustomers.Add(c, new List<double>());
+                            centroidCustomers[c].Add(klnr);
+                        }
+                        else
+                        {
+                            centroidCustomers[c].Add(klnr);
+                        }
+                    }
+                  
+                }
+            }
+
+            return GetCentroidsAvgNumber(k, centroidCustomers);
+        }
+
+        public static double CompareSSE(double sseNew, double sseOld) // cnr -> 1 
         {
             if (sseOld != 0.0)
             {
-                return sseOld > sseNew ? sseNew : sseOld;
+                return sseOld > sseNew ? sseNew : sseOld; // cnr => 1 : ne sse < oud sse -> update en relocate centroid position
             }
             return sseNew;
-            
+
         }
 
         public static void UpdateSSE(Dictionary<int, double> centroidsAvgSSE)
@@ -151,7 +260,7 @@ namespace ClusteringDS01
                 switch (centroid.Key)
                 {
                     case 1:
-                        sseAverageCentroidOne = CompareSSE(centroid.Value , sseAverageCentroidOne);
+                        sseAverageCentroidOne = CompareSSE(centroid.Value, sseAverageCentroidOne);
                         break;
                     case 2:
                         //do iets
@@ -195,7 +304,7 @@ namespace ClusteringDS01
             return centroidsAvgSSE;
         }
 
-        public static Dictionary<int, HashSet<double>> GetClusterProducts()
+        public static Dictionary<int, HashSet<double>> GetClusterClients()
         {
             //HashSet<int> uniqueList = new HashSet<int>();
             Dictionary<int, HashSet<double>> clusterProducts = new Dictionary<int, HashSet<double>>(); //key => centroid, list => klnr
@@ -220,7 +329,7 @@ namespace ClusteringDS01
                             }
                         }
                     }
-                   
+
                 }
                 centroidnr++;
             }
@@ -342,7 +451,7 @@ namespace ClusteringDS01
                 {
                     if (j == klnt_nr)
                     {
-                        klnrArray[i,0] = int.Parse(offers[i,j]+"");
+                        klnrArray[i, 0] = int.Parse(offers[i, j] + "");
                     }
                 }
             }
@@ -362,7 +471,7 @@ namespace ClusteringDS01
             {
                 for (int j = 0; j < column; j++)
                 {
-                    if (i <= lastIndexOfOldArray && !oldArrayDone)              
+                    if (i <= lastIndexOfOldArray && !oldArrayDone)
                     {
                         clusterArray[i, j] = oldArray[i, j];
                     }
@@ -392,7 +501,7 @@ namespace ClusteringDS01
                 array[i] = data[i, 2];
             }
             Array.Sort(array);
-            for (int a = 0; a < data.GetLength(0) ; a++)
+            for (int a = 0; a < data.GetLength(0); a++)
             {
                 for (int b = 0; b < data.GetLength(0); b++)
                 {
