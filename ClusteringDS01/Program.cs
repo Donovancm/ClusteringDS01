@@ -18,6 +18,9 @@ namespace ClusteringDS01
         public static double sseAverageCentroidTwo = 0.0;
         public static double sseAverageCentroidThree = 0.0;
         public static double sseAverageCentroidFour = 0.0;
+        public static Dictionary<int, double> centroidsAvgSSE { get; set; }
+        public static Dictionary<int, HashSet<double>> clusterClients { get; set; }
+        public static Dictionary<int, double[,]> centroidDistances { get; set; }
 
         static void Main(string[] args)
         {
@@ -48,12 +51,22 @@ namespace ClusteringDS01
         public static List<CentroidPosition> PlaceRandomCentroid(int k)
         {
             List<CentroidPosition> kList = new List<CentroidPosition>();
-            for (int i = 0; i < k; i++)
+            //for (int i = 0; i < k; i++)
+            //{
+            //    Random rng = new Random();
+            //    double X = rng.NextDouble() * 100; //50: 2 = 25
+            //    double Y = rng.NextDouble() * 31; //15:2 = 
+            //    kList.Add(new CentroidPosition(i + 1, X, Y));
+            //    Console.WriteLine("Centroid " + i + " with the location X of " + X + " with the location Y of " + Y);
+
+            //}
+            kList.Add(new CentroidPosition(1,  24.0, 7.0));
+            kList.Add(new CentroidPosition(2,  49.5, 14.0));
+            kList.Add(new CentroidPosition(3,  69.9, 21.0));
+            kList.Add(new CentroidPosition(4, 98.4, 28.0));
+            foreach (var centroid in kList)
             {
-                Random rng = new Random();
-                double Y = rng.NextDouble() * 100; //50: 2 = 25
-                double X = rng.NextDouble() * 31; //15:2 = 
-                kList.Add(new CentroidPosition(i + 1, X, Y));
+                Console.WriteLine(centroid.number + " " + centroid.X + " " + centroid.Y);
             }
             return kList;
         }
@@ -86,20 +99,21 @@ namespace ClusteringDS01
             // init variables
             offers = CsvReader.GetData();
             
-            // Cluster points
-            clusterPoints = new Dictionary<int, int[,]>(); //  key klnr , productnr-> = {[0,0] , centroidnr --> = [0,1]} /// int[,] -> = {row = 32}, (columns = 2) [1] -> prdnr, [2] -> centroidnr
-            Dictionary<int, double[,]> centroidDistances = new Dictionary<int, double[,]>(); // key centroidnr , kln_nr-> = {[0,0] , distance --> = [0,1]} /// int[,] -> = {row = 100}, (columns = 2) [1] -> kln_nr, [2] -> distance
-            
+           
 
             // set initial K -> K = 4 as centroids with X & Y position
             int k = 4;
             int[,] centroidLocation = new int[k, 2]; // matrix to save current centroids location
                                                      //kMatrixList = InitializeK(k);
-
-
-            for (int i = 0; i < 2; i++)
+            var centroidPositionList = new List<CentroidPosition>();
+            for (int i = 0; i < 15; i++)
             {
-                var centroidPositionList = new List<CentroidPosition>();
+                Console.WriteLine("Total iteration: "+(i+1));
+                // Cluster points
+                clusterPoints = new Dictionary<int, int[,]>(); //  key klnr , productnr-> = {[0,0] , centroidnr --> = [0,1]} /// int[,] -> = {row = 32}, (columns = 2) [1] -> prdnr, [2] -> centroidnr
+                centroidDistances = new Dictionary<int, double[,]>(); // key centroidnr , kln_nr-> = {[0,0] , distance --> = [0,1]} /// int[,] -> = {row = 100}, (columns = 2) [1] -> kln_nr, [2] -> distance
+
+
                 if (i == 0)
                 {
                     //place K Randomly at first time.
@@ -115,8 +129,8 @@ namespace ClusteringDS01
 
 
                 // step: 4 |  calculate average of all SSE of clusterpoints assigned to a certain Centroid.   Average SSE == Centre --> relocate Centroid to Centrepoint
-                var clusterClients = GetClusterClients();
-                var centroidsAvgSSE = CalcAverageSSECentroids(clusterClients, centroidDistances);
+                clusterClients = GetClusterClients();
+                centroidsAvgSSE = CalcAverageSSECentroids(clusterClients, centroidDistances);
 
 
                 // step: 4.5 | vergelijk oude sse met nieuw Sse
@@ -125,6 +139,7 @@ namespace ClusteringDS01
                 if(i > 0)
                 {
                     // stap 5: | relocate centroids
+
                     centroidPositionList = RelocateCentroidsPositions(k, centroidsAvgSSE, centroidDistances, clusterClients);
                 }
 
@@ -160,8 +175,8 @@ namespace ClusteringDS01
                 double Y = double.Parse(productList[c].ToString());
                 double X = double.Parse( customerList[c].ToString());
                 kList.Add(new CentroidPosition(c, X, Y));
+                Console.WriteLine("Centroid " + c + " with the location X of " + X + " with the location Y of " + Y);
             }
-
             return kList;
         }
 
@@ -219,7 +234,7 @@ namespace ClusteringDS01
 
                     var klnr = matrix[row, 0];
                     var distance = matrix[row, 1];
-                    var margin = 1;
+                    var margin = 1.5;
 
                     var minRange = centroidsAvgSSE[c] - margin;
                     var maxRange = centroidsAvgSSE[c] + margin;
@@ -243,13 +258,21 @@ namespace ClusteringDS01
             return GetCentroidsAvgNumber(k, centroidCustomers);
         }
 
-        public static double CompareSSE(double sseNew, double sseOld) // cnr -> 1 
+        public static double CompareSSE(double sseNew, double sseOld, int c) // cnr -> 1 
         {
+            var sse = sseOld;
             if (sseOld != 0.0)
             {
-                return sseOld > sseNew ? sseNew : sseOld; // cnr => 1 : ne sse < oud sse -> update en relocate centroid position
+                if (sseOld > sseNew)
+                {
+                    sse = sseNew;
+                    // cnr => 1 : ne sse < oud sse -> update en relocate centroid position
+                    RelocateCentroidsPositions(c,centroidsAvgSSE,centroidDistances, clusterClients);
+
+                }
+
             }
-            return sseNew;
+            return sse;
 
         }
 
@@ -260,19 +283,19 @@ namespace ClusteringDS01
                 switch (centroid.Key)
                 {
                     case 1:
-                        sseAverageCentroidOne = CompareSSE(centroid.Value, sseAverageCentroidOne);
+                        sseAverageCentroidOne = CompareSSE(centroid.Value, sseAverageCentroidOne,1);
                         break;
                     case 2:
                         //do iets
-                        sseAverageCentroidTwo = CompareSSE(centroid.Value, sseAverageCentroidTwo);
+                        sseAverageCentroidTwo = CompareSSE(centroid.Value, sseAverageCentroidTwo,2);
                         break;
                     case 3:
                         //do iets
-                        sseAverageCentroidThree = CompareSSE(centroid.Value, sseAverageCentroidThree);
+                        sseAverageCentroidThree = CompareSSE(centroid.Value, sseAverageCentroidThree,3);
                         break;
                     case 4:
                         //do iets
-                        sseAverageCentroidFour = CompareSSE(centroid.Value, sseAverageCentroidFour);
+                        sseAverageCentroidFour = CompareSSE(centroid.Value, sseAverageCentroidFour,4);
                         break;
                     default:
                         break;
