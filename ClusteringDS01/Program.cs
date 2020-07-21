@@ -22,6 +22,9 @@ namespace ClusteringDS01
         public static Dictionary<int, HashSet<double>> clusterClients { get; set; }
         public static Dictionary<int, double[,]> centroidDistances { get; set; }
 
+        public static Dictionary<int, List<int>> centroids { get; set; }
+        public static Dictionary<int, List<Tuple<int,double>>> centroidDistances_New { get; set; }
+
         static void Main(string[] args)
         {
             //Console.WriteLine("Hello World!");
@@ -106,6 +109,7 @@ namespace ClusteringDS01
             int[,] centroidLocation = new int[k, 2]; // matrix to save current centroids location
                                                      //kMatrixList = InitializeK(k);
             var centroidPositionList = new List<CentroidPosition>();
+
             for (int i = 0; i < 15; i++)
             {
                 Console.WriteLine("Total iteration: "+(i+1));
@@ -116,16 +120,21 @@ namespace ClusteringDS01
 
                 if (i == 0)
                 {
-                    //place K Randomly at first time.
+                    //OLD: place K Randomly at first time.
                     centroidPositionList = PlaceRandomCentroid(k);
+
+                    //NEW: place K Randomly at first time.
+                    centroids = Centroid.Initialize(k);
+
                 }
 
 
                 //eucl distance from centroid to offers / items
-                CalcCentroidDistance(centroidPositionList, offers, centroidDistances);
+                centroidDistances_New = new Dictionary<int, List<Tuple<int, double>>>();
+                CalcCentroidDistance();
 
                 // step: 3 + 3.5 | after calc distances add data to cluster dictionary {klnr prodnr centroidnr}| 
-                AssignToCluster(centroidDistances, clusterPoints);
+                AssignToCluster();
 
 
                 // step: 4 |  calculate average of all SSE of clusterpoints assigned to a certain Centroid.   Average SSE == Centre --> relocate Centroid to Centrepoint
@@ -359,63 +368,75 @@ namespace ClusteringDS01
             return clusterProducts;
         }
 
-        public static void CalcCentroidDistance(List<CentroidPosition> cList, double[,] offers, Dictionary<int, double[,]> centroidDistance)
+        public static void CalcCentroidDistance()
         {
-            foreach (var centroid in cList)
+            
+            foreach (var customer in CsvReader.customersDictionary)
             {
-                double[] pValue = new double[31];
-                int klantnr = int.Parse(Math.Round(centroid.Y).ToString());
-                for (int i = 0; i < 31; i++)
-                {
-                    pValue[i] = offers[i, klantnr];
-                }
-                DistanceToCentroid(centroid.number, pValue, centroidDistance, offers);
+                
+                DistanceToCentroid(customer.Value);
             }
 
         }
 
-        public static void DistanceToCentroid(int cnumber, double[] pValue, Dictionary<int, double[,]> centroidDistance, double[,] offers)
+        public static void DistanceToCentroid(CustomerInfo customer)
         {
-            int row = offers.GetLength(0) - 1;
-            int column = offers.GetLength(1) - 1;
-            double[,] distances = new double[101, 2];
-            for (int i = 0; i < column; i++)
+
+            var pointsDistance = new List<Tuple<int, double>>();
+            foreach (var centroid in centroids)
             {
-                double[] array = new double[31];
-                for (int j = 0; j < row; j++)
+                double distance = Centroid.ComputeDistance(centroid.Value.ToArray(), customer.Points.ToArray());
+         
+                if (centroidDistances_New.ContainsKey(customer.CustomerId))
                 {
-                    array[j] = offers[j, i];
+                    centroidDistances_New[customer.CustomerId].Add(new Tuple<int, double>(centroid.Key, distance));
                 }
-                IDistance iDistance = null;
-                iDistance = new Euclidean();
-                distances[i, 0] = i; // kln_nr
-                distances[i, 1] = iDistance.ComputeDistance(array, pValue); //ecl ding array en pValue door geven
+                else {
+                    pointsDistance.Add(new Tuple<int, double>(centroid.Key, distance));
+                    centroidDistances_New.Add(customer.CustomerId, pointsDistance);
+                }
+                
             }
-            // 0 to 99
-            // Dictonary[CentroidNummer,[klantnr,Distance]]
-            centroidDistance.Add(cnumber, distances);
+            
+
+        }
+        public static void AssignToCluster()
+        {
+            ////dictionary of clusters
+            //for (int i = 0; i < 101; i++) // loops through kln_nr amount
+            //{
+            //    // gets i {kln_nr} of centroiddistance dictionary -> then pick the smallest value
+            //    double[,] distance = new double[4, 3]; // K{aantal centroids} = 4
+            //    int index = 0;
+            //    foreach (var centroid in centroidDistance)
+            //    {
+            //        // Example   (3,50, 2.49)
+            //        distance[index, 0] = centroid.Key;
+            //        distance[index, 1] = centroid.Value[i, 0]; // klant nummer
+            //        distance[index, 2] = centroid.Value[i, 1]; // distance
+            //        index++;
+            //    }
+            //    // method die de 2d array object opslaat in de behoorde cluster 2darray
+            //    AssignToClusterExtension(ShortestDistance(distance));
+            //    //ShortestDistance( distance)[0] return centroidnummer en klnt -> then add to dictionary
+            //}
+
+
+            foreach (var distance in centroidDistances_New)
+            {
+                int centroidNumber =  ShortestDistance_New(distance.Value).Item1;
+                Centroid.AddPoint(centroidNumber, CsvReader.customersDictionary[distance.Key]);
+            }
+            //Method Array 
         }
 
-        public static void AssignToCluster(Dictionary<int, double[,]> centroidDistance, Dictionary<int, int[,]> clusterPoints)
+        public static Tuple<int, double> ShortestDistance_New(List<Tuple<int,double>> centroidDistance )
         {
-            //dictionary of clusters
-            for (int i = 0; i < 101; i++) // loops through kln_nr amount
-            {
-                // gets i {kln_nr} of centroiddistance dictionary -> then pick the smallest value
-                double[,] distance = new double[4, 3]; // K{aantal centroids} = 4
-                int index = 0;
-                foreach (var centroid in centroidDistance)
-                {
-                    // Example   (3,50, 2.49)
-                    distance[index, 0] = centroid.Key;
-                    distance[index, 1] = centroid.Value[i, 0]; // klant nummer
-                    distance[index, 2] = centroid.Value[i, 1]; // distance
-                    index++;
-                }
-                // method die de 2d array object opslaat in de behoorde cluster 2darray
-                AssignToClusterExtension(ShortestDistance(distance));
-                //ShortestDistance( distance)[0] return centroidnummer en klnt -> then add to dictionary
-            }
+            //TODO FIX SORTING OF ARRAY, pick the right shortest distance to Centroid.
+            Tuple<int, double>[] tupleArray = centroidDistance.ToArray();
+            Array.Sort(tupleArray);
+            Tuple<int, double> distanceCentroid = tupleArray.ToList().First();
+            return distanceCentroid;
         }
 
         public static void AssignToClusterExtension(double[,] distance)// hulp methode voor complex add points to cluster
