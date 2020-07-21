@@ -9,7 +9,7 @@ namespace ClusteringDS01.Reader
  
     public class CsvReader
     {
-       
+        public static Dictionary<int, CustomerInfo> customersDictionary { get; set; }
         public static double[,] GetData()
         {
             // init variables
@@ -37,38 +37,43 @@ namespace ClusteringDS01.Reader
                     Console.WriteLine(line); // Write to console.
                 }
             }
+            int users = 101;
+            customersDictionary = Points2Dictionary(list, users);
 
-            int row = 0;
-            //string[] userArray = { };
-            foreach (var item in list)
+
+        }
+
+        public static Dictionary<int, CustomerInfo> Points2Dictionary(List<string> list, int usersColumn)
+        {
+            Dictionary<int, CustomerInfo> customers = new Dictionary<int, CustomerInfo>();
+            for (int i = 1; i < usersColumn; i++)
             {
-                // After the the first row comes offers data
-                if (row > 0)
+                int row = 1;
+                CustomerInfo customerInfo = new CustomerInfo();
+                List<int> points = new List<int>();
+                foreach (var item in list)
                 {
-
-                    // set matrix of offers of clients and products
-                    int[] users = new int[100];
-
-                    for (int i = 0; i < users.Length; i++)
+                    string[] userinfo = item.Split(",");
+                    if (row == 1) { customerInfo.CustomerId = i; customerInfo.CustomerName = userinfo[i]; }
+                    if (row > 1)
                     {
-                        string[] userOffers = item.Split(",");
-                        if (userOffers[i + 1] == "")
+                        if (userinfo[i] == "")
                         {
-                            // if  useroffer is empty string then set 0 in matrix
-                            matrix[row-1,i]= 0.0;
+                            points.Add(0);
                         }
                         else
                         {
-                            //else useroffer is not empty then set 1 in matrix
-                            matrix[row - 1, i] = 1.0;
+                            points.Add(int.Parse(userinfo[i]));
                         }
+                        
                     }
+                    row++;
                 }
-                // set row index to the next line/ the follow up productid of users offers
-                row++;
+                customerInfo.Points = points;
+                customers.Add(customerInfo.CustomerId, customerInfo);
             }
-        }
+            return customers;
 
-  
+        }
     }
 }
