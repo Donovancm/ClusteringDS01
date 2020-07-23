@@ -432,10 +432,7 @@ namespace ClusteringDS01
 
         public static Tuple<int, double> ShortestDistance_New(List<Tuple<int,double>> centroidDistance )
         {
-            //TODO FIX SORTING OF ARRAY, pick the right shortest distance to Centroid.
-            Tuple<int, double>[] tupleArray = centroidDistance.ToArray();
-            Array.Sort(tupleArray);
-            Tuple<int, double> distanceCentroid = tupleArray.ToList().First();
+            Tuple<int, double> distanceCentroid = centroidDistance.OrderBy(x => x.Item2).First();
             return distanceCentroid;
         }
 
