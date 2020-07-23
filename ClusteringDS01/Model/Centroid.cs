@@ -8,7 +8,7 @@ namespace ClusteringDS01.Model
     public class Centroid
     {
         //Centroidnummer + Coordinaten
-        public static Dictionary<int, List<int>> Centroids { get; set; }
+        public static Dictionary<int, List<int>> Centroids { get; set; } // int -> double
 
         // centroidnumber + customerinfo
         public static Dictionary<int, List<CustomerInfo>> Points { get; set; }
@@ -23,7 +23,7 @@ namespace ClusteringDS01.Model
             {
                 Random rng = new Random();
                 int random = rng.Next(1, 101);
-                Centroids.Add(i , CsvReader.customersDictionary[random].Points);
+                Centroids.Add(i , CsvReader.customersDictionary[random].Points); // methode to generate list of points (list contains double)
             }
             return Centroids;
 
