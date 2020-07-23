@@ -8,7 +8,7 @@ namespace ClusteringDS01.Distances
     {
         //offer naar centroid berekenen
         //X offer Y = 1ste centroid
-        public double ComputeDistance(double[] X, double[] Y)
+        public double ComputeDistance(double[] X, double[] Y) // TODO: x -> p, y -> q
         {
             double distance = 0.0;
             //d(p,q) = d(q,p) = 
