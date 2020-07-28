@@ -9,13 +9,13 @@ namespace ClusteringDS01.Model
     {
         public int CustomerId { get; set; }
         public string CustomerName { get; set; }
-        public List<int> Points { get; set; } // klanten col is van 32 offerte verkoop id
+        public List<int> Offer { get; set; } // klanten col is van 32 offerte verkoop id
 
         public CustomerInfo(int customerNumber, string customerName ,List<int> points )
         {
             CustomerId = customerNumber;
             CustomerName = customerName;
-            Points = points;
+            Offer = points;
         }
 
         public CustomerInfo() { }

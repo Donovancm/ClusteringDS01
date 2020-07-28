@@ -8,7 +8,7 @@ namespace ClusteringDS01.Model
     public class Centroid
     {
         //Centroidnummer + Coordinaten
-        public static Dictionary<int, List<int>> Centroids { get; set; } // int -> double
+        public static Dictionary<int, List<double>> Centroids { get; set; }
 
         // centroidnumber + customerinfo
         public static Dictionary<int, List<CustomerInfo>> Points { get; set; }
@@ -16,17 +16,27 @@ namespace ClusteringDS01.Model
         
         public Centroid() { }
 
-        public static Dictionary<int, List<int>> Initialize(int k)
+        public static Dictionary<int, List<double>> Initialize(int k)
         {
-            Centroids = new Dictionary<int, List<int>>();
+            Centroids = new Dictionary<int, List<double>>();
             for (int i = 1; i <= k; i++)
             {
-                Random rng = new Random();
-                int random = rng.Next(1, 101);
-                Centroids.Add(i , CsvReader.customersDictionary[random].Points); // methode to generate list of points (list contains double)
+                Centroids.Add(i , GenerateCentroidPosition());
             }
             return Centroids;
 
+        }
+
+        public static List<double> GenerateCentroidPosition()
+        {
+            List<double> centroidposition = new List<double>();
+            Random rng = new Random();
+            for (int i = 1; i <= 32; i++)
+            {
+                double randomNumber = rng.NextDouble() * (1.0 - 0.0) + 0.0;
+                centroidposition.Add(randomNumber);
+            }
+            return centroidposition;
         }
 
         public static void AddPoint(int centroidNumber, CustomerInfo customer)
@@ -44,12 +54,31 @@ namespace ClusteringDS01.Model
         }
 
         public static void ClearPointList() { }
-        public static void CalculateCentroidPosition() { }
 
-        public static double ComputeDistance( int[] X, int[] Y)
+        public static Dictionary<int, List<double>> CalculateCentroidPosition()
+        {
+            foreach (var cluster in Points)
+            {
+                List<CustomerInfo> customers = cluster.Value;
+                List<double> positions = new List<double>();
+                for (int i = 0; i < 32; i++)
+                {
+                    double totalOfferPoints = 0.0; // todo andere naam
+                    foreach (var customer in customers)
+                    {
+                        totalOfferPoints += customer.Offer.ToArray()[i];
+                    }
+                    positions.Add(totalOfferPoints / customers.Count);
+                }
+                Centroids[cluster.Key] = positions;
+            }
+
+            return Centroids;
+        }
+
+        public static double ComputeDistance( double[] X, int[] Y)
         {
             double distance = 0.0;
-            //d(p,q) = d(q,p) = 
             int row2DArrayX = X.Length;
             int row2DArrayY = Y.Length;
             for (int i = 0; i < row2DArrayX; i++)

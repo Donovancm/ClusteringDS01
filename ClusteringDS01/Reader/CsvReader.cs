@@ -10,22 +10,13 @@ namespace ClusteringDS01.Reader
     public class CsvReader
     {
         public static Dictionary<int, CustomerInfo> customersDictionary { get; set; }
-        public static double[,] GetData()
+        public static void GetData()
         {
-            // init variables
-            double[,] offers = CreateMatrix(); 
-            // setup Offers Matrix = Points
-            SetupOffersMatrix(offers);
-            return offers;
+            SetupOffers();
         }
 
-        public static double[,] CreateMatrix()
-        {
-            //Skip last row and last column //
-            return new double[32, 101];
-        }
 
-        public static void SetupOffersMatrix(double[,] matrix)
+        public static void SetupOffers()
         {
             List<string> list = new List<string>();
             using (StreamReader reader = new StreamReader("../../../Data/Winecraft.csv"))
@@ -34,7 +25,6 @@ namespace ClusteringDS01.Reader
                 while ((line = reader.ReadLine()) != null)
                 {
                     list.Add(line); // Add to clusterPoints.
-                    Console.WriteLine(line); // Write to console.
                 }
             }
             int users = 101;
@@ -69,7 +59,7 @@ namespace ClusteringDS01.Reader
                     }
                     row++;
                 }
-                customerInfo.Points = points;
+                customerInfo.Offer = points;
                 customers.Add(customerInfo.CustomerId, customerInfo);
             }
             return customers;
