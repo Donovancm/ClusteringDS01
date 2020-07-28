@@ -53,7 +53,10 @@ namespace ClusteringDS01.Model
 
         }
 
-        public static void ClearPointList() { }
+        public static void ClearPointList()
+        {
+            Points.Clear();
+        }
 
         public static Dictionary<int, List<double>> CalculateCentroidPosition()
         {

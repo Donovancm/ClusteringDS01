@@ -62,6 +62,7 @@ namespace ClusteringDS01
                 CalcCentroidDistance();
 
                 // step: 3 | after calc distances add data to cluster dictionary {klnr prodnr centroidnr}| 
+                if( i > 0) { Centroid.ClearPointList(); }
                 AssignToCluster();
 
                 // step: 4 | vergelijk oude sse met nieuw Sse
@@ -76,7 +77,24 @@ namespace ClusteringDS01
                 //Controleren of 
                 //
             }
+            PrintResults();
             Console.ReadLine();
+        }
+
+        public static void PrintResults()
+        {
+            Console.WriteLine("SSE: " + sse);
+            SortedDictionary<int, List<CustomerInfo>> sortedData = new SortedDictionary<int, List<CustomerInfo>>(sseCentroids);
+            foreach (var cluster in sortedData)
+            {
+                Console.WriteLine("K: " + cluster.Key + "\t");
+                List<CustomerInfo> customers = cluster.Value;
+                foreach (var customer in customers)
+                {
+                    Console.Write( customer.CustomerName + ", ");
+                }
+                Console.WriteLine();
+            }
         }
         public static Dictionary<int, List<double>> RelocateCentroidsPositions()
         {
