@@ -28,13 +28,10 @@ namespace ClusteringDS01
         }
         public static void UserChoices()
         {
-            //Reminder weergeven lijst van beschikbare personen
-            //Kies eerste persoon en daarna kies 2de persoon
             Console.WriteLine("Set the amount of Centroids (k)");
             numberOfCentroids = int.Parse( Console.ReadLine().ToString());
             Console.WriteLine("Set the amount of Iterations");
             numberOfIterations = int.Parse(Console.ReadLine().ToString());
-
         }
 
         public static void Init()
@@ -75,9 +72,6 @@ namespace ClusteringDS01
                     // stap 5: | relocate centroids
                     centroids = RelocateCentroidsPositions();
                 }
-                //Deepcopy
-                //Controleren of 
-                //
             }
             PrintResults();
             ExportResults();
@@ -99,11 +93,14 @@ namespace ClusteringDS01
                 Console.WriteLine();
             }
         }
+
+        //To Centroid Class
         public static Dictionary<int, List<double>> RelocateCentroidsPositions()
         {
             return Centroid.CalculateCentroidPosition();
         }
 
+        //To Centroid Class
         public static void UpdateSSE()
         {
             double newSse = CalcAverageSSECentroids();
@@ -120,6 +117,7 @@ namespace ClusteringDS01
             
         }
 
+        //To Centroid Class
         public static double CalcAverageSSECentroids()
         {
             Dictionary<int, double> centroidsAvgSSE = new Dictionary<int, double>();
@@ -137,6 +135,7 @@ namespace ClusteringDS01
             return sseAverage;
         }
 
+        //To Centroid Class
         public static void CalcCentroidDistance()
         {
             
@@ -148,6 +147,7 @@ namespace ClusteringDS01
 
         }
 
+        //To Centroid Class
         public static void DistanceToCentroid(CustomerInfo customer)
         {
 
@@ -169,16 +169,19 @@ namespace ClusteringDS01
             
 
         }
+
+        //To Centroid Class
         public static void AssignToCluster()
         {
             foreach (var distance in centroidDistances)
             {
-                int centroidNumber =  ShortestDistance_New(distance.Value).Item1;
+                int centroidNumber =  ShortestDistance(distance.Value).Item1;
                 Centroid.AddPoint(centroidNumber, CsvReader.customersDictionary[distance.Key]);
             }
         }
 
-        public static Tuple<int, double> ShortestDistance_New(List<Tuple<int,double>> centroidDistance)
+        //To Centroid Class
+        public static Tuple<int, double> ShortestDistance(List<Tuple<int,double>> centroidDistance)
         {
             Tuple<int, double> distanceCentroid = centroidDistance.OrderBy(x => x.Item2).First();
             return distanceCentroid;
@@ -203,7 +206,7 @@ namespace ClusteringDS01
             }
             var curDir = Directory.GetCurrentDirectory();
             var rootProjectDir = curDir.Remove(curDir.IndexOf("\\bin\\Debug\\netcoreapp2.2"));
-            Console.WriteLine(rootProjectDir);
+            
             var memStream = new MemoryStream();
             excelHelper.SaveAs(memStream);
             memStream.Position = 0;
