@@ -1,9 +1,11 @@
 ﻿using ClusteringDS01.Distances;
 using ClusteringDS01.Model;
 using ClusteringDS01.Reader;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 
 namespace ClusteringDS01
@@ -78,6 +80,7 @@ namespace ClusteringDS01
                 //
             }
             PrintResults();
+            ExportResults();
             Console.ReadLine();
         }
 
@@ -180,6 +183,34 @@ namespace ClusteringDS01
             Tuple<int, double> distanceCentroid = centroidDistance.OrderBy(x => x.Item2).First();
             return distanceCentroid;
         }
-    
+
+        public static void ExportResults()
+        {
+            int k = sseCentroids.Count;
+            var excelHelper = new ExcelPackage();
+            var currWorksheet = excelHelper.Workbook.Worksheets.Add("K:" + k);
+            currWorksheet.Cells[1, 1].Value = "SSE: " + sse;
+
+            foreach (var cluster in sseCentroids)
+            {
+                currWorksheet.Cells[cluster.Key + 3, 1].Value = cluster.Key;
+                currWorksheet.Cells[cluster.Key + 3, 1].Style.Font.Bold = true;
+                List<CustomerInfo> customerInfos = cluster.Value;
+                for (int i = 0; i < customerInfos.Count; i++)
+                {
+                    currWorksheet.Cells[cluster.Key + 3, i + 3].Value = customerInfos.ElementAt(i).CustomerName;
+                }
+            }
+            var curDir = Directory.GetCurrentDirectory();
+            var rootProjectDir = curDir.Remove(curDir.IndexOf("\\bin\\Debug\\netcoreapp2.2"));
+            Console.WriteLine(rootProjectDir);
+            var memStream = new MemoryStream();
+            excelHelper.SaveAs(memStream);
+            memStream.Position = 0;
+            byte[] bytes = new byte[memStream.Length];
+            memStream.Read(bytes, 0, (int)memStream.Length);
+            System.IO.File.WriteAllBytes($"{rootProjectDir}\\Output\\" + "K_" + k + "_" + DateTime.Now.ToString("yyyyMMdd_hhmmss") + ".xlsx", bytes);
+        }
+
     }
 }
