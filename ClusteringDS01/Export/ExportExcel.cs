@@ -1,4 +1,5 @@
-﻿using ClusteringDS01.Model;
+﻿using ClusteringDS01.Distances;
+using ClusteringDS01.Model;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,18 @@ namespace ClusteringDS01.Export
                 {
                     currWorksheet.Cells[cluster.Key + 3, i + 3].Value = customerInfos.ElementAt(i).CustomerName;
                 }
+            }
+        }
+        public static void CreateSilhouetteWorkSheet()
+        {
+            currWorksheet = excelHelper.Workbook.Worksheets.Add("Silhouette");
+            currWorksheet.Cells[1, 1].Value = "Silhout: " + Silhouette.SilhouetteValues.Average(x => x.Value);
+            int rowCount = 3;
+            foreach (var customer in Silhouette.SilhouetteValues)
+            {
+                currWorksheet.Cells[rowCount, 1].Value = customer.Key;
+                currWorksheet.Cells[rowCount, 2].Value = customer.Value;
+                rowCount++;
             }
         }
 

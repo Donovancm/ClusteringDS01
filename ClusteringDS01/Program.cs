@@ -71,16 +71,21 @@ namespace ClusteringDS01
             }
 
             //Average Cohesion
-            Silhouette.AverageCohesion(1);
-
-            //Average Separetion
-
-            //Silhoutte
-
+            Silhouette.Init();
+            foreach (var cluster in Centroid.sseCentroids)
+            {
+                var customers = cluster.Value;
+                foreach (var customer in customers)
+                {
+                    Silhouette.CalculateSilhouette(customer.CustomerId);
+                }
+            }
+          
             PrintResults();
             ExportExcel.Init();
             ExportExcel.CreateClusterWorkSheet();
             ExportExcel.CreateTopDealsWorkSheet();
+            ExportExcel.CreateSilhouetteWorkSheet();
             ExportExcel.Export();
             Console.ReadLine();
         }
