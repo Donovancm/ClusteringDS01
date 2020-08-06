@@ -205,5 +205,10 @@ namespace ClusteringDS01.Model
             }
             return topDeals;
         }
+
+        public static  int GetSSECentroidByCustomerId(int id)
+        {
+           return sseCentroids.FirstOrDefault(cluster => cluster.Value.Find(x => x.CustomerId == id).CustomerId == id).Key;
+        }
     }
 }

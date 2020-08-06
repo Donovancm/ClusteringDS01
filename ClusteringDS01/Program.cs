@@ -17,8 +17,9 @@ namespace ClusteringDS01
         public static int numberOfIterations;
 
         public static Dictionary<int, List<double>> centroids { get; set; }
-   
-      
+
+        //Todo beschrijven methodes
+        //Todo Silhoute theorie + opdrachtimplementatie 1+2+3+4
 
         static void Main(string[] args)
         {
@@ -68,6 +69,14 @@ namespace ClusteringDS01
                     centroids = Centroid.CalculateCentroidPosition();
                 }
             }
+
+            //Average Cohesion
+            Silhouette.AverageCohesion(1);
+
+            //Average Separetion
+
+            //Silhoutte
+
             PrintResults();
             ExportExcel.Init();
             ExportExcel.CreateClusterWorkSheet();
