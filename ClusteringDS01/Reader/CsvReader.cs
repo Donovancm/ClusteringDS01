@@ -10,12 +10,19 @@ namespace ClusteringDS01.Reader
     public class CsvReader
     {
         public static Dictionary<int, CustomerInfo> customersDictionary { get; set; }
+
+        /// <summary>
+        /// Uitvoeren uitlezen van csv data
+        /// </summary>
         public static void GetData()
         {
             SetupOffers();
         }
 
 
+        /// <summary>
+        /// Toevoegen van csv bestand naar een lijst
+        /// </summary>
         public static void SetupOffers()
         {
             List<string> list = new List<string>();
@@ -24,7 +31,7 @@ namespace ClusteringDS01.Reader
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    list.Add(line); // Add to clusterPoints.
+                    list.Add(line); 
                 }
             }
             int users = 101;
@@ -33,6 +40,12 @@ namespace ClusteringDS01.Reader
 
         }
 
+        /// <summary>
+        /// Toevoegen van csv bestand naar een lijst
+        /// </summary>
+        /// <param name="list">Lijst van csv data</param>
+        /// <param name="usersColumn">aantal users</param>
+        /// <returns>Lijst van gebruikers,offertes</returns>
         public static Dictionary<int, CustomerInfo> Points2Dictionary(List<string> list, int usersColumn)
         {
             Dictionary<int, CustomerInfo> customers = new Dictionary<int, CustomerInfo>();

@@ -15,6 +15,9 @@ namespace ClusteringDS01.Export
         public static int k { get; set; }
         public static ExcelWorksheet currWorksheet { get; set; }
 
+        /// <summary>
+        /// Creeren van excelsheets 
+        /// </summary>
         public static void Init()
         {
             k = Centroid.sseCentroids.Count;
@@ -22,6 +25,9 @@ namespace ClusteringDS01.Export
             currWorksheet = excelHelper.Workbook.Worksheets.Add("K:" + k);
         }
 
+        /// <summary>
+        /// Exporteren van alle worksheets
+        /// </summary>
         public static void Export()
         {
             var curDir = Directory.GetCurrentDirectory();
@@ -34,6 +40,10 @@ namespace ClusteringDS01.Export
             memStream.Read(bytes, 0, (int)memStream.Length);
             System.IO.File.WriteAllBytes($"{rootProjectDir}\\Output\\" + "K_" + k + "_" + DateTime.Now.ToString("yyyyMMdd_hhmmss") + ".xlsx", bytes);
         }
+
+        /// <summary>
+        ///  Creeren van cluster worksheet
+        /// </summary>
         public static void CreateClusterWorkSheet()
         {
             currWorksheet.Cells[1, 1].Value = "SSE: " + Centroid.sse;
@@ -48,6 +58,10 @@ namespace ClusteringDS01.Export
                 }
             }
         }
+
+        /// <summary>
+        /// Creeren van silhouette worksheet
+        /// </summary>
         public static void CreateSilhouetteWorkSheet()
         {
             currWorksheet = excelHelper.Workbook.Worksheets.Add("Silhouette");
@@ -61,6 +75,10 @@ namespace ClusteringDS01.Export
             }
         }
 
+
+        /// <summary>
+        /// Creeren van TopDeals worksheet
+        /// </summary>
         public static void CreateTopDealsWorkSheet()
         {
             currWorksheet = excelHelper.Workbook.Worksheets.Add("TopDeals");

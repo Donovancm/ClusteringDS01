@@ -6,9 +6,14 @@ namespace ClusteringDS01.Distances
 {
     public class Euclidean : IDistance
     {
-        //offer naar centroid berekenen
-        //X offer Y = 1ste centroid
-        public double ComputeDistance(double[] X, double[] Y) // TODO: x -> p, y -> q
+
+        /// <summary>
+        /// Bereken de Euclidean afstand tussen centroid X en persoon Y
+        /// </summary>
+        /// <param name="X">Lijst van Centroid points double</param>
+        /// <param name="Y">Lijst van Persoon points double</param>
+        /// <returns>afstand in double </returns>
+        public double ComputeDistance(double[] X, double[] Y)
         {
             double distance = 0.0;
             //d(p,q) = d(q,p) = 
@@ -24,7 +29,13 @@ namespace ClusteringDS01.Distances
 
         //offer naar centroid berekenen
         //X offer Y = 1ste centroid
-        public double ComputeDistance(int[] X, int[] Y) // TODO: x -> p, y -> q
+        /// <summary>
+        /// Bereken de Euclidean afstand tussen centroid X en persoon Y 
+        /// </summary>
+        /// <param name="X">Lijst van Centroid point int</param>
+        /// <param name="Y">Lijst van persoon point int</param>
+        /// <returns></returns>
+        public double ComputeDistance(int[] X, int[] Y) 
         {
             double distance = 0.0;
             //d(p,q) = d(q,p) = 

@@ -22,6 +22,11 @@ namespace ClusteringDS01.Model
 
         public Centroid() { }
 
+        /// <summary>
+        /// Creeren van aantal centroids K
+        /// </summary>
+        /// <param name="k"> aantal centroid </param>
+        /// <returns></returns>
         public static Dictionary<int, List<double>> Initialize(int k)
         {
             Centroids = new Dictionary<int, List<double>>();
@@ -33,6 +38,10 @@ namespace ClusteringDS01.Model
 
         }
 
+        /// <summary>
+        /// Genereert een random centroidposition met 32 points
+        /// </summary>
+        /// <returns>Lijst van points in double</returns>
         public static List<double> GenerateCentroidPosition()
         {
             List<double> centroidposition = new List<double>();
@@ -45,6 +54,11 @@ namespace ClusteringDS01.Model
             return centroidposition;
         }
 
+        /// <summary>
+        ///  Toevoegen personen naar een cluster
+        /// </summary>
+        /// <param name="centroidNumber">Centroid X</param>
+        /// <param name="customer">klant object X</param>
         public static void AddPoint(int centroidNumber, CustomerInfo customer)
         {
             if (Points is null)
@@ -59,11 +73,18 @@ namespace ClusteringDS01.Model
 
         }
 
+        /// <summary>
+        /// Lijst van points leeghalen
+        /// </summary>
         public static void ClearPointList()
         {
             Points.Clear();
         }
 
+        /// <summary>
+        /// Nieuwe centroid positie bereken
+        /// </summary>
+        /// <returns>lijst van nieuwe centroid posities </returns>
         public static Dictionary<int, List<double>> CalculateCentroidPosition()
         {
             foreach (var cluster in Points)
@@ -85,6 +106,12 @@ namespace ClusteringDS01.Model
             return Centroids;
         }
 
+        /// <summary>
+        /// Afstand berekenen van Centroid points X naar Persoon points Y 
+        /// </summary>
+        /// <param name="X">Centroid points X</param>
+        /// <param name="Y">Persoon points Y</param>
+        /// <returns></returns>
         public static double ComputeDistance( double[] X, int[] Y)
         {
             double distance = 0.0;
@@ -98,6 +125,9 @@ namespace ClusteringDS01.Model
             return result;
         }
 
+        /// <summary>
+        /// Updaten van beste SSE en beste cluster 
+        /// </summary>
         public static void UpdateSSE()
         {
             double newSse = CalcAverageSSECentroids();
@@ -114,7 +144,10 @@ namespace ClusteringDS01.Model
 
         }
 
-        //To Centroid Class
+        /// <summary>
+        /// Bereken gemiddelde SSE
+        /// </summary>
+        /// <returns>SSE in double </returns>
         public static double CalcAverageSSECentroids()
         {
             Dictionary<int, double> centroidsAvgSSE = new Dictionary<int, double>();
@@ -132,6 +165,9 @@ namespace ClusteringDS01.Model
             return sseAverage;
         }
 
+        /// <summary>
+        /// Bereken afstand tussen persoon X en centroid X
+        /// </summary>
         public static void CalcCentroidDistance()
         {
             centroidDistances = new Dictionary<int, List<Tuple<int, double>>>();
@@ -142,6 +178,10 @@ namespace ClusteringDS01.Model
 
         }
 
+        /// <summary>
+        /// Het berekening van de distance en het koppelen naar een dictionary
+        /// </summary>
+        /// <param name="customer"></param>
         public static void DistanceToCentroid(CustomerInfo customer)
         {
 
@@ -165,6 +205,9 @@ namespace ClusteringDS01.Model
 
         }
 
+        /// <summary>
+        /// Alle points koppelen naar een centroid
+        /// </summary>
         public static void AssignToCluster()
         {
             foreach (var distance in centroidDistances)
@@ -173,18 +216,23 @@ namespace ClusteringDS01.Model
                 AddPoint(centroidNumber, CsvReader.customersDictionary[distance.Key]);
             }
         }
+        /// <summary>
+        /// Pak de klantId en de afstand die hets dichtsbij de centroid behoord
+        /// </summary>
+        /// <param name="centroidDistance">Lijst van klantId, afstand</param>
+        /// <returns>KlantId en afstand</returns>
         public static Tuple<int, double> ShortestDistance(List<Tuple<int, double>> centroidDistance)
         {
             Tuple<int, double> distanceCentroid = centroidDistance.OrderBy(x => x.Item2).First();
             return distanceCentroid;
         }
 
-        //Topdeals
-        //Dictonary van Int = offerteid, List van Tuple < int<centroid),  int (count van offertes) >
+        /// <summary>
+        /// Ophalen van totale gekochte offertes van elke cluster
+        /// </summary>
+        /// <returns>Lijst OfferteId, (Centroid, aantal) </returns>
         public static Dictionary<int, List<Tuple<int,int>>> GetTopDeals()
         {
-            //per row(32) bekijken van de cluster(centroid) sum offerte per offerte id met row number
-            //
             Dictionary<int, List<Tuple<int, int>>> topDeals = new Dictionary<int, List<Tuple<int, int>>>();
             for (int offerID = 1; offerID <= 32; offerID++)
             {
@@ -206,6 +254,11 @@ namespace ClusteringDS01.Model
             return topDeals;
         }
 
+        /// <summary>
+        /// Haal centroidnummer d.m.v klantId
+        /// </summary>
+        /// <param name="id">KlantId X</param>
+        /// <returns>Centroidnummer</returns>
         public static int GetSSECentroidByCustomerId(int id)
         {
             int centroid = 0;

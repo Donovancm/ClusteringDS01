@@ -18,9 +18,6 @@ namespace ClusteringDS01
 
         public static Dictionary<int, List<double>> centroids { get; set; }
 
-        //Todo beschrijven methodes
-        //Todo Silhoute theorie + opdrachtimplementatie 1+2+3+4
-
         static void Main(string[] args)
         {
             UserChoices();
@@ -39,7 +36,7 @@ namespace ClusteringDS01
             // init variables
             CsvReader.GetData();
 
-            // set initial K -> K = 4 as centroids with X & Y position
+            // set initial K -> K = 4 as centroids 
             int k = numberOfCentroids;
 
             for (int i = 0; i < numberOfIterations; i++)
@@ -48,7 +45,7 @@ namespace ClusteringDS01
                 if (i == 0)
                 {
 
-                    //NEW: place K Randomly at first time.
+                    //place K Randomly at first time.
                     centroids = Centroid.Initialize(k);
 
                 }
@@ -56,21 +53,20 @@ namespace ClusteringDS01
                 //eucl distance from centroid to offers / items
                 Centroid.CalcCentroidDistance();
 
-                // step: 3 | after calc distances add data to cluster dictionary {klnr prodnr centroidnr}| 
+                //add data to cluster dictionary  
                 if( i > 0) { Centroid.ClearPointList(); }
                 Centroid.AssignToCluster();
 
-                // step: 4 | vergelijk oude sse met nieuw Sse
+                //vergelijk oude sse met nieuw Sse
                 Centroid.UpdateSSE();
 
                 if (i > 0)
                 {
-                    // stap 5: | relocate centroids
+                    //relocate centroids
                     centroids = Centroid.CalculateCentroidPosition();
                 }
             }
 
-            //Average Cohesion
             Silhouette.Init();
             foreach (var cluster in Centroid.sseCentroids)
             {
@@ -90,6 +86,9 @@ namespace ClusteringDS01
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Priint de cluster resultaten
+        /// </summary>
         public static void PrintResults()
         {
             Console.WriteLine("SSE: " + Centroid.sse);

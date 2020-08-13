@@ -9,16 +9,26 @@ namespace ClusteringDS01.Distances
 {
     public class Silhouette
     {
-        //s(i) = (sep(i) - co(i) )/ (max { co(i), sep(i})
-        // KlantId --> <centroid, klantID, afstand>
-        //Cohesion afstanden berekenen binnen 1 centroid met elkaar klant --> klant
+        /// <summary>
+        ///  DistancesCohesion = een dictonary van  key: klantIdX, value: list van centroid nummer, klantidY en afstand
+        /// </summary>
         public static Dictionary<int, List<Tuple<int, int, double>>> DistancesCohesion = new Dictionary<int, List<Tuple<int, int, double>>>();
-        //Seperation klant ---> berekenen buiten zijn eigen centroid berekenen afstanden
-        // KlantId --> <centroid, klantID, afstand>
+        
+        /// <summary>
+        /// DistancesSeperation = een dictonary van  key: klantIdX, value: list van centroid nummer, klantidY en afstand
+        /// </summary>
         public static Dictionary<int, List<Tuple<int, int, double>>> DistancesSeperation = new Dictionary<int, List<Tuple<int, int, double>>>();
 
+        /// <summary>
+        /// SilhouetteValues = een dictonary van key: persoon, value: silhouette waarde in double
+        /// </summary>
         public static Dictionary<string, double> SilhouetteValues = new Dictionary<string, double>();
 
+        /// <summary>
+        /// Berekent de silhouette waarde tussen -1 en 1 per persoon.
+        /// 
+        /// </summary>
+        /// <param name="customerId">KlantId X</param>
         public static void CalculateSilhouette(int customerId)
         {
             double silhouette = 0.0;
@@ -42,11 +52,24 @@ namespace ClusteringDS01.Distances
             SilhouetteValues.Add(customerName, silhouette);
         }
 
+        /// <summary>
+        /// Checkt of de combinatie van personen al bestaat in Cohesion
+        /// </summary>
+        /// <param name="x">Persoon X</param>
+        /// <param name="y">Persoon Y</param>
+        /// <param name="centroid"> Cluster Centroid</param>
+        /// <returns>True of false</returns>
         public static Boolean HasDuplicate(int x, int y, int centroid)
         {
             return DistancesCohesion[centroid].Any<Tuple<int, int, double>>(value => (value.Item1 == x && value.Item2 == y) || (value.Item1 == y && value.Item2 == x));
         }
 
+        /// <summary>
+        /// Checkt of de combinatie van personen al bestaat in Seperation
+        /// </summary>
+        /// <param name="x">Persoon X</param>
+        /// <param name="y">Persoon Y</param>
+        /// <returns>True of false</returns>
         public static Boolean HasDuplicate2(int x, int y)
         {
             if (DistancesSeperation.ContainsKey(x) && DistancesSeperation[x].Any<Tuple<int, int, double>>(value => (value.Item2 == y)))
@@ -60,6 +83,10 @@ namespace ClusteringDS01.Distances
             return false;
         }
 
+        /// <summary>
+        ///  Berekent afstand voor Seperation
+        /// </summary>
+        /// <param name="customerId">KlantId X</param>
         public static void CalculateDistanceSeperation(int customerId)
         {
             if (!DistancesSeperation.ContainsKey(customerId))
@@ -86,6 +113,11 @@ namespace ClusteringDS01.Distances
 
         }
 
+        /// <summary>
+        ///  Berekent gemiddelde afstand van Seperation
+        /// </summary>
+        /// <param name="customerId">KlantId X</param>
+        /// <returns>afstand in double</returns>
         public static double AverageSeparation(int customerId)
         {
             var output = 0.0;
@@ -121,8 +153,12 @@ namespace ClusteringDS01.Distances
             output = interCluster.First().Value;
             return output;
         }
-        //afstanden bereken binnen centroid van klant naar klant
-        //
+
+        /// <summary>
+        ///  Afstanden bereken binnen een cluster voor Cohesion
+        /// </summary>
+        /// <param name="customerId">KlantId X</param>
+        /// <param name="centroid">Cluster Centroid X</param>
         public static void CalculateDistanceCohesion(int customerId, int centroid)
         {
             if (!DistancesCohesion.ContainsKey(centroid))
@@ -142,6 +178,11 @@ namespace ClusteringDS01.Distances
             }
         }
 
+        /// <summary>
+        /// Gemiddelde afstand voor Cohesion
+        /// </summary>
+        /// <param name="customerId">KlantId X</param>
+        /// <returns>afstand cohesion in double</returns>
         public static double AverageCohesion(int customerId)
         {
             double result = 0.0;
@@ -153,6 +194,9 @@ namespace ClusteringDS01.Distances
             return result;
         }
 
+        /// <summary>
+        /// Uitvoeren Cohesion en Seperation van klanten in clusters
+        /// </summary>
         public static void Init()
         {
             foreach (var cluster in Centroid.sseCentroids)
