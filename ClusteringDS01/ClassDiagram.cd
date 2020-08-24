@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="ClusteringDS01.Distances.Euclidean">
-    <Position X="9" Y="2" Width="2.5" />
+    <Position X="8.5" Y="2.5" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Distances\Euclidean.cs</FileName>
@@ -9,7 +9,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="ClusteringDS01.Distances.Silhouette">
-    <Position X="9" Y="3.25" Width="2.5" />
+    <Position X="6" Y="4" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AEAAAAABAgAhAAQAAAAAAAAAAAAAAAAAgAACAAAAgIA=</HashCode>
       <FileName>Distances\Silhouette.cs</FileName>
@@ -44,7 +44,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="ClusteringDS01.Program">
-    <Position X="6.25" Y="2.75" Width="2.5" />
+    <Position X="8.5" Y="3.75" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAQAAAAAAACIAEAAAAAAAAAAAAACBAABAAA=</HashCode>
       <FileName>Program.cs</FileName>
